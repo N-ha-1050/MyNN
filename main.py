@@ -32,6 +32,36 @@ def sigmoid_dash(Y):
     return Y_dash
 
 
+def relu(X):
+    """ReLU
+
+    ReLU
+
+    Args:
+        X: k * n_Y 行列
+    Returns:
+        Y: k * n_Y 行列
+    """
+    Y = np.where(X <= 0, 0, X)
+    return Y
+
+
+def relu_dash(Y):
+    """ReLUの導関数
+
+    ReLUの導関数
+
+    Args:
+        Y: k * n_Y 行列
+
+    Returns:
+        Y_dash: k * n_Y 行列
+    """
+
+    Y_dash = np.where(Y <= 0, 0, 1)
+    return Y_dash
+
+
 def identity(X):
     """恒等関数
 
