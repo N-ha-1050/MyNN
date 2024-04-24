@@ -112,15 +112,16 @@ def error_dash(Y, dY):
     return Y_dash
 
 
-class MiddleLayer:
+class BaseLayer:
     def __init__(
         self,
-        n_X: int,
-        n_Y: int,
+        n_X,
+        n_Y,
         wb_width=0.01,
         eta=0.1,
         activation_func=sigmoid,
         activation_func_dash=sigmoid_dash,
+        error_func_dash=None,
     ) -> None:
         """初期化
 
@@ -133,9 +134,7 @@ class MiddleLayer:
             eta(float): 学習係数
             activation_func: 活性化関数
             activation_func_dash: 活性化関数の導関数
-
-        Returns:
-            None
+            error_func_dash: 誤差関数と活性化関数の合成関数の導関数 (activation_func_dash の出力層用の別名)
         """
         # 重み
         self.W = wb_width * np.random.randn(n_X, n_Y)  # n_X * n_Y
@@ -149,6 +148,7 @@ class MiddleLayer:
         # 活性化関数
         self.activation_func = activation_func
         self.activation_func_dash = activation_func_dash
+        self.error_func_dash = error_func_dash
 
     def forward(self, X):
         """順伝播
@@ -167,11 +167,11 @@ class MiddleLayer:
 
         U = (X @ self.W) + self.b  # k * n_Y (b はブロードキャストされる)
         self.Y = self.activation_func(U)
-        # self.Y = 1 / (1 + np.exp(-U))
-        # self.Y = np.maximum(u, 0)
 
         return self.Y
 
+
+class MiddleLayer(BaseLayer):
     def backward(self, dY):
         """逆伝播
 
@@ -195,62 +195,7 @@ class MiddleLayer:
         return dX
 
 
-class OutputLayer:
-    def __init__(
-        self,
-        n_X: int,
-        n_Y: int,
-        wb_width=0.01,
-        eta=0.1,
-        activation_func=identity,
-        error_func_dash=error_dash,
-    ) -> None:
-        """初期化
-
-        初期化
-
-        Args:
-            n_X(int): 入力層の次元
-            n_Y(int): 出力層の次元
-            wb_width(float): 重みとバイアスの広がり具合
-            eta(float): 学習係数
-
-        Returns:
-            None
-        """
-        # 重み
-        self.W = wb_width * np.random.randn(n_X, n_Y)  # n_X * n_Y
-
-        # バイアス
-        self.b = wb_width * np.random.randn(n_Y)  # n_Y
-
-        # 学習係数
-        self.eta = eta
-
-        # 活性化関数
-        self.activation_func = activation_func
-        self.error_func_dash = error_func_dash
-
-    def forward(self, X):
-        """順伝播
-
-        順伝播
-
-        Args:
-            X: 入力値、k * n_X 行列
-
-        Returns:
-            Y: 出力値、k * n_Y 行列
-
-        """
-
-        self.X = X  # k * n_X
-
-        U = (X @ self.W) + self.b  # k * n_Y (k はブロードキャストされる)
-        self.Y = self.activation_func(U)
-
-        return self.Y
-
+class OutputLayer(BaseLayer):
     def backward(self, dY):
         """逆伝播
 
